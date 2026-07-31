@@ -1,0 +1,27 @@
+{
+  "name": "agriprice-gh-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "seed": "node scripts/seed.js",
+    "seed:commodity-prices": "node scripts/seedCommodityPrices.js",
+    "test:cloudinary": "node test-cloudinary.js"
+  },
+  "dependencies": {
+    "africastalking": "^0.7.0",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.3.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.11.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.1.1",
+    "node-cron": "^3.0.3"
+  }
+}
