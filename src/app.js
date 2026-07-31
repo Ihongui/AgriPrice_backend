@@ -13,7 +13,10 @@ import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 const app = express();
 
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+const allowedOrigins = (
+  process.env.FRONTEND_URL ||
+  "http://localhost:5173,https://transcendent-liger-f7f44d.netlify.app"
+)
   .split(",")
   .map((origin) => origin.trim());
 
