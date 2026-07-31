@@ -7,16 +7,32 @@ import { getLatestPopulatedPrices } from "../utils/priceSnapshot.js";
 const markStalePrices = async () => {
   const latestPrices = await getLatestPopulatedPrices();
   const threshold = new Date(Date.now() - 48 * 60 * 60 * 1000);
-  const staleEntries = latestPrices.filter((entry) => new Date(entry.dateRecorded) < threshold);
+  const staleEntries = latestPrices.filter(
+    (entry) => new Date(entry.dateRecorded) < threshold,
+  );
 
   if (staleEntries.length) {
-    await Price.updateMany({ _id: { $in: staleEntries.map((entry) => entry._id) } }, { isStale: true });
+    await Price.updateMany(
+      { _id: { $in: staleEntries.map((entry) => entry._id) } },
+      { isStale: true },
+    );
 
-    const summary = staleEntries
-      .map((entry) => `${entry.cropId?.name} @ ${entry.marketId?.name} last updated ${entry.dateRecorded}`)
+    const previewLimit = 10;
+    const summaryPreview = staleEntries
+      .slice(0, previewLimit)
+      .map(
+        (entry) =>
+          `${entry.cropId?.name} @ ${entry.marketId?.name} last updated ${entry.dateRecorded}`,
+      )
       .join("; ");
+    const remainingCount = Math.max(0, staleEntries.length - previewLimit);
+    const overflowSummary = remainingCount
+      ? `; ...and ${remainingCount} more`
+      : "";
 
-    console.warn(`Stale prices detected for ${staleEntries.length} records. Alert: ${summary}`);
+    console.warn(
+      `Stale prices detected for ${staleEntries.length} records. Alert preview: ${summaryPreview}${overflowSummary}`,
+    );
   }
 
   return staleEntries;
@@ -26,7 +42,7 @@ const seedStaleFlagsIfEmpty = async () => {
   const [cropCount, marketCount, priceCount] = await Promise.all([
     Crop.countDocuments(),
     Market.countDocuments(),
-    Price.countDocuments()
+    Price.countDocuments(),
   ]);
 
   if (!cropCount || !marketCount || !priceCount) {
@@ -53,8 +69,8 @@ const startPriceUpdateJob = () => {
       });
     },
     {
-      timezone: "Africa/Lagos"
-    }
+      timezone: "Africa/Lagos",
+    },
   );
 };
 

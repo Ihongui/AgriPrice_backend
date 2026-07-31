@@ -20,21 +20,35 @@ const allowedOrigins = (
   .split(",")
   .map((origin) => origin.trim());
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+const allowAllOrigins = allowedOrigins.includes("*");
 
-      return callback(new Error("CORS blocked for this origin"));
-    },
-    credentials: true,
-  }),
-);
+const corsConfig = {
+  origin(origin, callback) {
+    if (allowAllOrigins || !origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    const corsError = new Error("CORS blocked for this origin");
+    corsError.statusCode = 403;
+    return callback(corsError);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsConfig));
+app.options("*", cors(corsConfig));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "AgriPrice GH API is operational",
+  });
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({
